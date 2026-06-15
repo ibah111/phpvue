@@ -1,0 +1,45 @@
+http:
+  routers:
+    phpvue-http:
+      rule: "Host(`phpvue.sborkaweb.ru`)"
+      entryPoints:
+        - web
+      middlewares:
+        - phpvue-redirect-to-https
+      service: phpvue-frontend-svc
+
+    phpvue-api:
+      rule: "Host(`phpvue.sborkaweb.ru`) && (PathPrefix(`/api`) || PathPrefix(`/sanctum`) || Path(`/up`))"
+      entryPoints:
+        - websecure
+      priority: 100
+      tls:
+        certResolver: le
+      service: phpvue-api-svc
+
+    phpvue-frontend:
+      rule: "Host(`phpvue.sborkaweb.ru`)"
+      entryPoints:
+        - websecure
+      priority: 10
+      tls:
+        certResolver: le
+      service: phpvue-frontend-svc
+
+  middlewares:
+    phpvue-redirect-to-https:
+      redirectScheme:
+        scheme: https
+
+  services:
+    phpvue-frontend-svc:
+      loadBalancer:
+        passHostHeader: true
+        servers:
+          - url: "http://{URL}:{PORT}"
+
+    phpvue-api-svc:
+      loadBalancer:
+        passHostHeader: true
+        servers:
+          - url: "http://{URL}:{PORT}"
