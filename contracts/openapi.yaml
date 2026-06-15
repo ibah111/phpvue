@@ -1,0 +1,219 @@
+openapi: 3.1.0
+info:
+  title: Yandex Reviews API
+  version: 1.0.0
+servers:
+  - url: http://localhost:25200/api
+paths:
+  /auth/login:
+    post:
+      summary: Login with seeded user credentials
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password]
+              properties:
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+      responses:
+        "200":
+          description: Authenticated user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserResource"
+        "422":
+          description: Validation error
+  /auth/me:
+    get:
+      summary: Current authenticated user
+      responses:
+        "200":
+          description: Current user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserResource"
+        "401":
+          description: Unauthenticated
+  /auth/logout:
+    post:
+      summary: Logout current user
+      responses:
+        "200":
+          description: Logged out
+  /organization:
+    get:
+      summary: Latest connected organization
+      responses:
+        "200":
+          description: Organization or null
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: "#/components/schemas/OrganizationResource"
+                  - type: object
+                    properties:
+                      data:
+                        type: "null"
+    post:
+      summary: Save Yandex.Maps URL and synchronize organization data
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [url]
+              properties:
+                url:
+                  type: string
+                  format: uri
+      responses:
+        "200":
+          description: Parsed organization
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OrganizationResource"
+        "422":
+          description: Validation or parser error
+  /organization/reviews:
+    get:
+      summary: Paginated cached organization reviews
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+      responses:
+        "200":
+          description: Reviews page
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReviewsPage"
+        "404":
+          description: Organization is not connected
+components:
+  schemas:
+    User:
+      type: object
+      required: [id, name, email]
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        email:
+          type: string
+          format: email
+    UserResource:
+      type: object
+      required: [data]
+      properties:
+        data:
+          $ref: "#/components/schemas/User"
+    Organization:
+      type: object
+      required:
+        - id
+        - yandex_business_id
+        - yandex_url
+        - rating_count
+        - review_count
+        - parsed_review_count
+        - sync_status
+      properties:
+        id:
+          type: integer
+        yandex_business_id:
+          type: string
+        yandex_url:
+          type: string
+        title:
+          type: [string, "null"]
+        address:
+          type: [string, "null"]
+        average_rating:
+          type: [number, "null"]
+        rating_count:
+          type: integer
+        review_count:
+          type: integer
+        parsed_review_count:
+          type: integer
+        sync_status:
+          type: string
+        sync_error:
+          type: [string, "null"]
+        last_synced_at:
+          type: [string, "null"]
+          format: date-time
+        created_at:
+          type: [string, "null"]
+          format: date-time
+        updated_at:
+          type: [string, "null"]
+          format: date-time
+    OrganizationResource:
+      type: object
+      required: [data]
+      properties:
+        data:
+          $ref: "#/components/schemas/Organization"
+    Review:
+      type: object
+      required: [id, yandex_review_id, author, date, text, rating]
+      properties:
+        id:
+          type: integer
+        yandex_review_id:
+          type: string
+        author:
+          type: object
+          properties:
+            name:
+              type: [string, "null"]
+            public_id:
+              type: [string, "null"]
+        date:
+          type: [string, "null"]
+          format: date-time
+        text:
+          type: [string, "null"]
+        rating:
+          type: [integer, "null"]
+          minimum: 1
+          maximum: 5
+    ReviewsPage:
+      type: object
+      required: [data, links, meta]
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/Review"
+        links:
+          type: object
+        meta:
+          type: object
+          required: [current_page, last_page, per_page, total]
+          properties:
+            current_page:
+              type: integer
+            last_page:
+              type: integer
+            per_page:
+              type: integer
+            total:
+              type: integer

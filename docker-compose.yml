@@ -1,0 +1,73 @@
+services:
+  nginx:
+    image: nginx:1.27-alpine
+    ports:
+      - "25200:80"
+    volumes:
+      - ./backend:/var/www/backend
+      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      - php
+
+  php:
+    build:
+      context: ./docker/php
+    working_dir: /var/www/backend
+    volumes:
+      - ./backend:/var/www/backend
+    environment:
+      APP_NAME: YandexReviews
+      APP_ENV: local
+      APP_KEY: base64:fFakMt9CugGz96xk7goF7FoVRxViqUPjCW+Zt8NyTHU=
+      APP_DEBUG: "true"
+      APP_URL: http://localhost:25200
+      APP_LOCALE: ru
+      APP_FALLBACK_LOCALE: en
+      LOG_CHANNEL: stderr
+      LOG_LEVEL: debug
+      DB_CONNECTION: pgsql
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_DATABASE: yandex_reviews
+      DB_USERNAME: yandex_reviews
+      DB_PASSWORD: yandex_reviews
+      SESSION_DRIVER: database
+      SESSION_DOMAIN: localhost
+      SANCTUM_STATEFUL_DOMAINS: localhost:25300,127.0.0.1:25300,localhost:25200,127.0.0.1:25200
+      FRONTEND_URL: http://localhost:25300
+      YANDEX_MAPS_MAX_REVIEWS: 600
+      YANDEX_MAPS_PAGE_SIZE: 50
+      YANDEX_MAPS_REQUEST_DELAY_MS: 250
+    depends_on:
+      - postgres
+
+  postgres:
+    image: postgres:17-alpine
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: yandex_reviews
+      POSTGRES_USER: yandex_reviews
+      POSTGRES_PASSWORD: yandex_reviews
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+
+  frontend:
+    build:
+      context: ./docker/frontend
+    working_dir: /app
+    volumes:
+      - ./frontend:/app
+      - frontend-node-modules:/app/node_modules
+    environment:
+      VITE_API_URL: http://localhost:25200/api
+      VITE_BACKEND_URL: http://localhost:25200
+    command: sh -c "bun install && bun run dev -- --host 0.0.0.0 --port 25300"
+    ports:
+      - "25300:25300"
+    depends_on:
+      - nginx
+
+volumes:
+  postgres-data:
+  frontend-node-modules:
