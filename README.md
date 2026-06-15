@@ -15,7 +15,10 @@ Laravel API + Vue 3 SPA for connecting a Yandex.Maps organization card, parsing 
 
 ## Run
 
+Create root `.env` from `.env.example` and adjust values for local or server usage.
+
 ```bash
+cp .env.example .env
 docker compose up -d --build
 ```
 
