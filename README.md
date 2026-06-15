@@ -11,18 +11,17 @@ Laravel API + Vue 3 SPA for connecting a Yandex.Maps organization card, parsing 
 ## Demo Login
 
 - Email: `demo@example.com`
-- Password: `password`
+- Password: `ReviewsDemo!2026#7pQz`
 
 ## Run
 
 ```bash
 docker compose up -d --build
-docker compose exec php composer install
-docker compose exec php php artisan migrate --seed
-docker compose exec frontend bun install
 ```
 
 Open http://localhost:25300.
+
+On backend start, the container waits for PostgreSQL, runs `php artisan migrate --force`, then runs `php artisan db:seed --force`. Laravel stores applied migrations in the standard `migrations` table and skips migrations that are already recorded there.
 
 ## Checks
 

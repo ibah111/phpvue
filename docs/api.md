@@ -11,7 +11,7 @@ Sanctum CSRF endpoint: `GET http://localhost:25200/sanctum/csrf-cookie`
 ```json
 {
   "email": "demo@example.com",
-  "password": "password"
+  "password": "ReviewsDemo!2026#7pQz"
 }
 ```
 

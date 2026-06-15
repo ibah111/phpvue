@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { Eye, EyeOff } from 'lucide-vue-next'
 import { computed, reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useSessionStore } from '../app/store/session'
@@ -9,12 +10,21 @@ const router = useRouter()
 const session = useSessionStore()
 const isSubmitting = ref(false)
 const error = ref<string | null>(null)
+const isPasswordVisible = ref(false)
 const form = reactive({
   email: 'demo@example.com',
-  password: 'password',
+  password: 'ReviewsDemo!2026#7pQz',
 })
 
 const canSubmit = computed(() => form.email.trim() !== '' && form.password !== '' && !isSubmitting.value)
+const passwordInputType = computed(() => (isPasswordVisible.value ? 'text' : 'password'))
+
+function togglePasswordVisibility() {
+  isPasswordVisible.value = !isPasswordVisible.value
+  appLogger.log('LoginPage.togglePasswordVisibility', {
+    is_visible: isPasswordVisible.value,
+  })
+}
 
 async function submit() {
   if (!canSubmit.value) {
@@ -53,7 +63,20 @@ async function submit() {
 
       <label class="field">
         <span>Пароль</span>
-        <input v-model="form.password" autocomplete="current-password" name="password" type="password" />
+        <span class="password-input">
+          <input v-model="form.password" autocomplete="current-password" name="password" :type="passwordInputType" />
+          <button
+            class="password-toggle"
+            type="button"
+            :aria-label="isPasswordVisible ? 'Скрыть пароль' : 'Показать пароль'"
+            :aria-pressed="isPasswordVisible"
+            :title="isPasswordVisible ? 'Скрыть пароль' : 'Показать пароль'"
+            @click="togglePasswordVisibility"
+          >
+            <EyeOff v-if="isPasswordVisible" :size="18" stroke-width="2.2" aria-hidden="true" />
+            <Eye v-else :size="18" stroke-width="2.2" aria-hidden="true" />
+          </button>
+        </span>
       </label>
 
       <p v-if="error" class="alert">{{ error }}</p>

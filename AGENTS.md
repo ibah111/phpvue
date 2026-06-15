@@ -22,8 +22,6 @@ project/
 ├─ docker/
 │  ├─ php/
 │  │  └─ Dockerfile
-│  ├─ nginx/
-│  │  └─ default.conf
 │  └─ frontend/
 │     └─ Dockerfile
 ├─ docs/
@@ -56,8 +54,8 @@ Vue frontend → JSON HTTP requests → Laravel backend
 Default local URLs:
 
 ```txt
-Frontend:    http://localhost:5173
-Backend API: http://localhost:8000/api
+Frontend:    http://localhost:25300
+Backend API: http://localhost:25200/api
 Database:    localhost:5432
 ```
 
@@ -109,7 +107,7 @@ APP_NAME=MyProject
 APP_ENV=local
 APP_KEY=
 APP_DEBUG=true
-APP_URL=http://localhost:8000
+APP_URL=http://localhost:25200
 
 DB_CONNECTION=pgsql
 DB_HOST=postgres
@@ -118,7 +116,7 @@ DB_DATABASE=my_project
 DB_USERNAME=my_project
 DB_PASSWORD=my_project
 
-FRONTEND_URL=http://localhost:5173
+FRONTEND_URL=http://localhost:25300
 ```
 
 Inside Docker, Laravel connects to PostgreSQL by service name:
@@ -134,7 +132,7 @@ DB_HOST=postgres
 Example `frontend/.env`:
 
 ```env
-VITE_API_URL=http://localhost:8000/api
+VITE_API_URL=http://localhost:25200/api
 ```
 
 Only variables prefixed with `VITE_` are exposed to the frontend.
@@ -176,8 +174,7 @@ docker compose up -d --build
 Expected services:
 
 ```txt
-nginx      Laravel web server
-php        PHP-FPM Laravel container
+php        Laravel API dev server
 postgres   PostgreSQL database
 frontend   Vue + Vite dev server using Bun
 ```
@@ -518,13 +515,13 @@ make frontend-install
 Frontend usually runs on:
 
 ```txt
-http://localhost:5173
+http://localhost:25300
 ```
 
 Backend usually runs on:
 
 ```txt
-http://localhost:8000
+http://localhost:25200
 ```
 
 If the browser blocks API requests, check Laravel CORS settings.

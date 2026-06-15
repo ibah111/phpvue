@@ -14,6 +14,8 @@ export default [
     languageOptions: {
       globals: {
         console: 'readonly',
+        decodeURIComponent: 'readonly',
+        document: 'readonly',
         window: 'readonly',
       },
       parserOptions: {

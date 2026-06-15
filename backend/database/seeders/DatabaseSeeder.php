@@ -19,7 +19,7 @@ class DatabaseSeeder extends Seeder
             'email' => 'demo@example.com',
         ], [
             'name' => 'Demo User',
-            'password' => 'password',
+            'password' => 'ReviewsDemo!2026#7pQz',
         ]);
     }
 }
