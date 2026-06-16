@@ -1,10 +1,47 @@
 import axios, { AxiosError, AxiosHeaders } from 'axios'
 import { appLogger } from '../lib/logger'
 
-export const backendUrl = import.meta.env.VITE_BACKEND_URL ?? 'http://localhost:25200'
+const LOOPBACK_HOSTS = new Set(['localhost', '127.0.0.1', '::1'])
+
+function trimTrailingSlash(value: string): string {
+  return value.replace(/\/+$/, '')
+}
+
+function isLoopbackUrl(value: string): boolean {
+  try {
+    const url = new URL(value, window.location.origin)
+    return LOOPBACK_HOSTS.has(url.hostname)
+  } catch {
+    return false
+  }
+}
+
+function isRunningOnLoopback(): boolean {
+  return typeof window !== 'undefined' && LOOPBACK_HOSTS.has(window.location.hostname)
+}
+
+function resolvePublicUrl(value: string | undefined, fallback: string): string {
+  const publicUrl = value?.trim()
+
+  if (!publicUrl) {
+    return fallback
+  }
+
+  if (typeof window !== 'undefined' && isLoopbackUrl(publicUrl) && !isRunningOnLoopback()) {
+    return fallback
+  }
+
+  return trimTrailingSlash(publicUrl)
+}
+
+export const backendUrl = resolvePublicUrl(import.meta.env.VITE_BACKEND_URL, '')
+export const apiUrl = resolvePublicUrl(
+  import.meta.env.VITE_API_URL,
+  backendUrl ? `${backendUrl}/api` : '/api',
+)
 
 export const http = axios.create({
-  baseURL: import.meta.env.VITE_API_URL ?? `${backendUrl}/api`,
+  baseURL: apiUrl,
   withCredentials: true,
   withXSRFToken: true,
   xsrfCookieName: 'XSRF-TOKEN',

@@ -56,8 +56,9 @@ services:
       - ./frontend:/app
       - frontend-node-modules:/app/node_modules
     environment:
-      VITE_API_URL: ${VITE_API_URL:-http://localhost:25200/api}
-      VITE_BACKEND_URL: ${VITE_BACKEND_URL:-http://localhost:25200}
+      VITE_API_URL: ${VITE_API_URL:-/api}
+      VITE_BACKEND_URL: ${VITE_BACKEND_URL:-}
+      VITE_DEV_PROXY_TARGET: ${VITE_DEV_PROXY_TARGET:-http://php:25200}
       VITE_ALLOWED_HOSTS: ${VITE_ALLOWED_HOSTS:-localhost,127.0.0.1,phpvue.sborkaweb.ru}
       VITE_PORT: ${VITE_PORT:-25300}
     command: sh -c "bun install && bun run dev -- --host 0.0.0.0 --port ${VITE_PORT:-25300}"
