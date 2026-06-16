@@ -18,10 +18,19 @@ backend-key:
 	docker compose exec php php artisan key:generate
 
 migrate:
-	docker compose exec php php artisan migrate
+	docker compose exec -T php php artisan migrate
+
+migrate-force:
+	docker compose exec -T php php artisan migrate --force
 
 seed:
-	docker compose exec php php artisan db:seed
+	docker compose exec -T php php artisan db:seed
+
+seed-force:
+	docker compose exec -T php php artisan db:seed --force
+
+backend-clear:
+	docker compose exec -T php php artisan optimize:clear
 
 backend-test:
 	docker compose exec php php artisan test
